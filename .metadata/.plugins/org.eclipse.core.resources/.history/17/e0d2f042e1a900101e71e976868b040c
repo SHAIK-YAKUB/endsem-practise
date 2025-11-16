@@ -1,0 +1,5 @@
+package com.klef.cicd.lab.service;
+
+public class FoodOrderServiceImpl {
+
+}

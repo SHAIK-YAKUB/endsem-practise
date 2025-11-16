@@ -1,0 +1,70 @@
+package com.klef.cicd.lab.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import com.klef.cicd.lab.entity.FoodOrder;
+import com.klef.cicd.lab.service.FoodOrderService;
+
+@RestController
+@RequestMapping("/foodapi/")
+@CrossOrigin(origins = "*")
+public class FoodOrderController {
+
+    @Autowired
+    private FoodOrderService service;
+
+    @GetMapping("/")
+    public String home() {
+        return " Restaurant Food Ordering API Running Successfully!";
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<?> addOrder(@RequestBody FoodOrder order) {
+        try {
+            FoodOrder saved = service.addOrder(order);
+            return new ResponseEntity<>(saved, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<FoodOrder>> getAllOrders() {
+        return new ResponseEntity<>(service.getAllOrders(), HttpStatus.OK);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> getOrderById(@PathVariable int id) {
+        FoodOrder order = service.getOrderById(id);
+        if (order != null)
+            return new ResponseEntity<>(order, HttpStatus.OK);
+        else
+            return new ResponseEntity<>("Order with ID " + id + " not found.", HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateOrder(@RequestBody FoodOrder order) {
+        try {
+            FoodOrder updated = service.updateOrder(order);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteOrder(@PathVariable int id) {
+        FoodOrder existing = service.getOrderById(id);
+        if (existing != null) {
+            service.deleteOrderById(id);
+            return new ResponseEntity<>("Order with ID " + id + " deleted successfully.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Order with ID " + id + " not found.", HttpStatus.NOT_FOUND);
+        }
+    }
+}
